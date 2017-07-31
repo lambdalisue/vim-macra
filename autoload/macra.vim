@@ -1,6 +1,6 @@
 let s:interests = []
 let s:mappings = []
-let s:regchar = ''
+let s:regchar = '@'
 
 
 function! macra#register(name, ...) abort
@@ -37,6 +37,10 @@ function! macra#run() abort
   call s:store()
   try
     execute printf('normal! @%s', char)
+  catch
+    echohl ErrorMsg
+    echo substitute(v:exception, '^Vim(.\+):', '', '')
+    echohl None
   finally
     call s:restore()
   endtry
@@ -48,13 +52,20 @@ function! macra#run_over() abort range
     return
   endif
   call s:store()
-  execute printf(
-        \ ':%d,%dnormal! @%s',
-        \ a:firstline,
-        \ a:lastline,
-        \ char
-        \)
-  call s:restore()
+  try
+    execute printf(
+          \ ':%d,%dnormal! @%s',
+          \ a:firstline,
+          \ a:lastline,
+          \ char
+          \)
+  catch
+    echohl ErrorMsg
+    echo substitute(v:exception, '^Vim(.\+):', '', '')
+    echohl None
+  finally
+    call s:restore()
+  endtry
 endfunction
 
 
