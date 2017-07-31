@@ -35,8 +35,11 @@ function! macra#run() abort
     return
   endif
   call s:store()
-  execute printf('normal! @%s', char)
-  call s:restore()
+  try
+    execute printf('normal! @%s', char)
+  finally
+    call s:restore()
+  endtry
 endfunction
 
 function! macra#run_over() abort range
