@@ -1,5 +1,6 @@
 let s:interests = []
 let s:mappings = []
+let s:bufnr = 0
 let s:regchar = '@'
 
 
@@ -70,9 +71,13 @@ endfunction
 
 
 function! s:store() abort
+  let s:bufnr = bufnr('%')
   let s:mappings = []
   for [name, modes] in s:interests
     for mode in split(modes, '\zs')
+      if empty(maparg(name, mode))
+        continue
+      endif
       call add(s:mappings, maparg(name, mode, 0, 1))
       execute printf('%sunmap %s', mode, name)
     endfor
@@ -80,9 +85,12 @@ function! s:store() abort
 endfunction
 
 function! s:restore() abort
+  let bufnr = bufnr('%')
+  execute printf('keepjumps keepalt %dbuffer', s:bufnr)
   for mapping in s:mappings
     call s:map(mapping)
   endfor
+  execute printf('keepjumps keepalt %dbuffer', bufnr)
 endfunction
 
 function! s:map(mapping) abort
